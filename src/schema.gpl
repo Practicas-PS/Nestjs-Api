@@ -1,0 +1,55 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Comment {
+  id: Float!
+  content: String!
+  rate: Float!
+  date: DateTime!
+  user: User!
+  post: Post!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Post {
+  id: Float!
+  title: String!
+  content: String!
+  user: User!
+  comments: [Comment!]!
+}
+
+type User {
+  id: Float!
+  profilePic: String!
+  username: String!
+  email: String!
+  password: String!
+  posts: [Post!]!
+  comments: [Comment!]!
+}
+
+type Query {
+  users: [User!]!
+  user(id: Float!): User!
+  findAllPosts: [Post!]!
+  findPostzById(id: Int!): Post!
+  findAllComments: [Comment!]!
+  findCommentById(id: Int!): Comment!
+  findCommentsByPostId(postId: Int!): [Comment!]!
+}
+
+type Mutation {
+  createUser(username: String!, email: String!, password: String!, profilePic: String!): User!
+  updateUser(id: Float!, username: String!, email: String!, password: String!, profilePic: String!): User!
+  deleteUser(id: Float!): Boolean!
+  createPost(title: String!, content: String!, userId: Int!): Post!
+  updatePost(id: Int!, title: String!, content: String!): Post!
+  deletePost(id: Int!): Boolean!
+  createComment(content: String!, rate: Float!, date: DateTime!, userId: Float!, postId: Float!): Comment!
+}

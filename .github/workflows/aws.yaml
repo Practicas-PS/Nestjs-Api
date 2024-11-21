@@ -1,0 +1,79 @@
+name: Deploy en AWS Lightsail
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clonar el código desde otro repositorio (modifica la URL según sea necesario)
+      - name: Clone project repository Si
+        run: |
+          git clone https://github.com/Practicas-PS/QR_Generator.git .
+
+      # 2. Instalar Node.js para cualquier proyecto React
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'  # Ajustar según la versión necesaria
+
+      # 3. Instalar las dependencias del proyecto
+      - name: Install dependencies
+        run: |
+          npm install
+
+      # 4. Construir el proyecto React
+      - name: Build React app
+        run: |
+          npm run build
+
+      # 5. Configurar la conexión SSH
+      - name: Configurar SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # 6. Agregar el servidor al archivo known_hosts
+      - name: Agregar host a known_hosts
+        run: |
+          ssh-keyscan -v -H $HOST >> ~/.ssh/known_hosts
+        env:
+          HOST: ${{ secrets.REMOTE_HOST }}
+
+      # 7. Instalar Apache2 en el servidor si no está instalado
+      - name: Instalar Apache2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
+          sudo apt update
+          sudo apt install apache2 -y
+          sudo systemctl enable apache2  # Habilitar Apache para arrancar automáticamente
+          EOF
+        env:
+          HOST: ${{ secrets.REMOTE_HOST }}
+
+      # 8. Crear el directorio en el servidor si no existe
+      - name: Crear directorio en el servidor
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@$HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
+        env:
+          HOST: ${{ secrets.REMOTE_HOST }}
+
+      # 9. Transferir archivos de build a Lightsail
+      - name: Transferir archivos de build a Lightsail
+        run: |
+          rsync -avz --delete build/ ubuntu@$HOST:/var/www/html/
+        env:
+          HOST: ${{ secrets.REMOTE_HOST }}
+          USER: ubuntu
+
+      # 10. Reiniciar Apache para cargar los cambios
+      - name: Reiniciar servidor Apache
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
+          sudo systemctl restart apache2  # Ajusta esto si usas Nginx u otro servidor
+          EOF
+        env:
+          HOST: ${{ secrets.REMOTE_HOST }}

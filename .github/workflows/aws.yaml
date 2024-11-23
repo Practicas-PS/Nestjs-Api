@@ -19,8 +19,18 @@ jobs:
       - name: Despliegue en Lightsail
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@13.58.239.119 << 'EOF'
+          # Verificar si el directorio existe
+          if [ ! -d "/var/www/html" ]; then
+            echo "/var/www/html no existe. Creando directorio."
+            sudo mkdir -p /var/www/html
+          fi
+
           cd /var/www/html
-          #sudo rm -rf *
+
+          # Eliminar archivos si es necesario
+          # sudo rm -rf *
+
+          # Si el repositorio ya está clonado, hacer pull
           if [ -d ".git" ]; then
               git pull origin main
           else

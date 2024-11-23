@@ -28,6 +28,11 @@ jobs:
       # 4. Ejecutar el comando start con las variables de entorno
       - name: Run start command
         run: |
+          echo "DB_HOST: ${{ secrets.REMOTE_HOST }}"
+          echo "DB_PORT: ${{ secrets.POSTGRES_PORT }}"
+          echo "DB_USERNAME: ${{ secrets.POSTGRES_USER }}"
+          echo "DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}"
+          echo "DB_DATABASE: ${{ secrets.POSTGRES_DATABASE }}"
           npm run start:dev
         env:
           DB_HOST: ${{ secrets.REMOTE_HOST }}

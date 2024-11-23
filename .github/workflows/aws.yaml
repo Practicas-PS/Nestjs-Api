@@ -7,65 +7,23 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Clonar el repositorio
-      - name: Clone project repository
-        run: |
-          git clone https://github.com/Practicas-PS/Nestjs-Api.git .
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2. Instalar Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-
-      # 3. Instalar dependencias
-      - name: Install dependencies
-        run: |
-          npm install
-
-      # 4. Ejecutar el comando start con las variables de entorno especificadas localmente
-      - name: Run start command
-        run: |
-          echo "DB_HOST: $DB_HOST"
-          echo "DB_PORT: $DB_PORT"
-          echo "DB_USERNAME: $DB_USERNAME"
-          echo "DB_PASSWORD: $DB_PASSWORD"
-          echo "DB_DATABASE: $DB_DATABASE"
-          npm run start:dev
-        env:
-          DB_HOST: 'ls-ea7ef303e426b22d0841d0e2ad8315f3522fd3b8.ct8s4gu8yu1q.us-east-2.rds.amazonaws.com'
-          DB_PORT: '5432'
-          DB_USERNAME: 'dbmasteruser'
-          DB_PASSWORD: 'marco123'
-          DB_DATABASE: 'Marco'
-
-
-      # 5. Configurar la conexión SSH
-      - name: Configurar SSH
+      - name: Conexion SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 6. Agregar el servidor al archivo known_hosts
-      - name: Agregar host a known_hosts
+      - name: Despliegue en Lightsail
         run: |
-          ssh-keyscan -v -H $HOST >> ~/.ssh/known_hosts
-        env:
-          HOST: ${{ secrets.REMOTE_HOST }}
-
-      # 7. Crear el directorio en el servidor si no existe
-      - name: Crear directorio en el servidor
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@$HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
-        env:
-          HOST: ${{ secrets.REMOTE_HOST }}
-
-      # 8. Transferir archivos generados a Lightsail
-      - name: Transferir archivos de build a Lightsail
-        run: |
-          rsync -avz --delete ./dist/ ubuntu@$HOST:/var/www/html/
-        env:
-          HOST: ${{ secrets.REMOTE_HOST }}
-          USER: ubuntu
+          ssh -o StrictHostKeyChecking=no ubuntu@13.58.239.119 << 'EOF'
+          cd /var/www/html
+          #sudo rm -rf *
+          if [ -d ".git" ]; then
+              git pull origin main
+          else
+              git clone https://github.com/Practicas-PS/Nestjs-Api.git .
+          fi
+          EOF

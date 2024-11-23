@@ -25,21 +25,22 @@ jobs:
         run: |
           npm install
 
-      # 4. Ejecutar el comando start con las variables de entorno SADASDA xd
+      # 4. Ejecutar el comando start con las variables de entorno especificadas localmente
       - name: Run start command
         run: |
-          echo "DB_HOST: ${{ secrets.REMOTE_HOST }}"
-          echo "DB_PORT: ${{ secrets.POSTGRES_PORT }}"
-          echo "DB_USERNAME: ${{ secrets.POSTGRES_USER }}"
-          echo "DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}"
-          echo "DB_DATABASE: ${{ secrets.POSTGRES_DATABASE }}"
+          echo "DB_HOST: $DB_HOST"
+          echo "DB_PORT: $DB_PORT"
+          echo "DB_USERNAME: $DB_USERNAME"
+          echo "DB_PASSWORD: $DB_PASSWORD"
+          echo "DB_DATABASE: $DB_DATABASE"
           npm run start:dev
         env:
-          DB_HOST: ${{ secrets.REMOTE_HOST }}
-          DB_PORT: ${{ secrets.POSTGRES_PORT }}
-          DB_USERNAME: ${{ secrets.POSTGRES_USER }}
-          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DB_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
+          DB_HOST: 'ls-ea7ef303e426b22d0841d0e2ad8315f3522fd3b8.ct8s4gu8yu1q.us-east-2.rds.amazonaws.com'
+          DB_PORT: '5432'
+          DB_USERNAME: 'dbmasteruser'
+          DB_PASSWORD: 'marco123'
+          DB_DATABASE: 'Marco'
+
 
       # 5. Configurar la conexión SSH
       - name: Configurar SSH

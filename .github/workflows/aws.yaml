@@ -25,14 +25,10 @@ jobs:
         run: |
           npm install
 
-      # 4. Ejecutar el comando dev
-      - name: Run dev command
+      # 4. Ejecutar el comando start
+      - name: Run start command
         run: |
-          npm run dev
-        # Agregar un paso para verificar los archivos generados
-      - name: Verify project structure
-        run: |
-          ls -la
+          npm run start
 
       # 5. Configurar la conexión SSH
       - name: Configurar SSH

@@ -12,7 +12,7 @@ jobs:
       # 1. Clonar el código desde el repositorio
       - name: Clone project repository
         run: |
-          git clone https://github.com/Practicas-PS/Nestjs-Api.git .
+          git clone https://github.com/Practicas-PS/QR_Generator.git .
 
       # 2. Instalar Node.js
       - name: Setup Node.js
@@ -33,7 +33,7 @@ jobs:
       # 5. Construir el proyecto
       - name: Build the project
         run: |
-          npm run build
+          npm run build  # Este paso es necesario para generar el directorio build/
 
       # 6. Configuración SSH
       - name: Setup SSH for connection

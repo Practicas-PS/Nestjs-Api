@@ -12,20 +12,20 @@ jobs:
       # 1. Clonar el código desde el repositorio
       - name: Clone project repository
         run: |
-          git clone https://github.com/Practicas-PS/QR_Generator.git .
+          git clone https://github.com/Practicas-PS/Nestjs-Api.git .
 
       # 2. Instalar Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'  # Ajustar según la versión de Node.js que uses
+          node-version: '18.x'
 
-      # 3. Instalar dependencias de Node.js
+      # 3. Instalar dependencias
       - name: Install dependencies
         run: |
           npm install
 
-      # 4. Instalar dependencias de NestJS, GraphQL y TypeORM
+      # 4. Instalar dependencias específicas para NestJS, GraphQL y TypeORM
       - name: Install NestJS, GraphQL, and TypeORM
         run: |
           npm install @nestjs/graphql @nestjs/typeorm typeorm pg
@@ -33,22 +33,22 @@ jobs:
       # 5. Construir el proyecto
       - name: Build the project
         run: |
-          npm run build  # Este paso es necesario para generar el directorio build/
+          npm run build
 
-      # 6. Configuración SSH
+      # 6. Configuración SSH para conexión
       - name: Setup SSH for connection
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 7. Agregar el host a known_hosts
+      # 7. Agregar el host al archivo known_hosts
       - name: Add host to known_hosts
         run: |
           ssh-keyscan -v -H $HOST >> ~/.ssh/known_hosts
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 8. Instalar Apache2 (o Nginx si lo prefieres)
+      # 8. Instalar Apache2 en el servidor
       - name: Install Apache2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
@@ -83,10 +83,9 @@ jobs:
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 12. Configuración PostgreSQL y TypeORM en NestJS
+      # 12. Configurar PostgreSQL y TypeORM
       - name: Setup PostgreSQL and TypeORM
         run: |
-          # Crear archivo ormconfig.json para conectar con PostgreSQL
           echo '{
             "type": "postgres",
             "host": "${{ secrets.POSTGRES_HOST }}",
@@ -107,7 +106,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
           cd /var/www/html
-          npm run start:prod  # o el comando adecuado según tu configuración de producción
+          npm run start:prod
           EOF
         env:
           HOST: ${{ secrets.REMOTE_HOST }}

@@ -25,6 +25,9 @@ jobs:
             sudo mkdir -p /var/www/html
           fi
 
+          # Cambiar permisos para el directorio /var/www/html
+          sudo chown -R ubuntu:ubuntu /var/www/html
+
           cd /var/www/html
 
           # Eliminar archivos si es necesario

@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Clonar el código desde el repositorio
+      # 1. Clonar el repositorio
       - name: Clone project repository
         run: |
           git clone https://github.com/Practicas-PS/Nestjs-Api.git .
@@ -25,31 +25,30 @@ jobs:
         run: |
           npm install
 
-      # 4. Instalar dependencias específicas para NestJS, GraphQL y TypeORM
-      - name: Install NestJS, GraphQL, and TypeORM
+      # 4. Ejecutar el comando dev
+      - name: Run dev command
         run: |
-          npm install @nestjs/graphql @nestjs/typeorm typeorm pg
-
-      # 5. Construir el proyecto
-      - name: Build the project
+          npm run dev
+        # Agregar un paso para verificar los archivos generados
+      - name: Verify project structure
         run: |
-          npm run build
+          ls -la
 
-      # 6. Configuración SSH para conexión
-      - name: Setup SSH for connection
+      # 5. Configurar la conexión SSH
+      - name: Configurar SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 7. Agregar el host al archivo known_hosts
-      - name: Add host to known_hosts
+      # 6. Agregar el servidor al archivo known_hosts
+      - name: Agregar host a known_hosts
         run: |
           ssh-keyscan -v -H $HOST >> ~/.ssh/known_hosts
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 8. Instalar Apache2 en el servidor
-      - name: Install Apache2
+      # 7. Instalar Apache2 si no está instalado
+      - name: Instalar Apache2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
           sudo apt update
@@ -59,54 +58,26 @@ jobs:
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 9. Crear directorio en el servidor si no existe
-      - name: Create directory in server
+      # 8. Crear el directorio en el servidor si no existe
+      - name: Crear directorio en el servidor
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 10. Transferir archivos de build a Lightsail
-      - name: Transfer build files to Lightsail
+      # 9. Transferir archivos generados a Lightsail
+      - name: Transferir archivos de build a Lightsail
         run: |
-          rsync -avz --delete build/ ubuntu@$HOST:/var/www/html/
+          rsync -avz --delete ./dist/ ubuntu@$HOST:/var/www/html/
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
           USER: ubuntu
 
-      # 11. Reiniciar Apache
-      - name: Restart Apache server
+      # 10. Reiniciar servidor Apache para cargar los cambios
+      - name: Reiniciar servidor Apache
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
           sudo systemctl restart apache2
-          EOF
-        env:
-          HOST: ${{ secrets.REMOTE_HOST }}
-
-      # 12. Configurar PostgreSQL y TypeORM
-      - name: Setup PostgreSQL and TypeORM
-        run: |
-          echo '{
-            "type": "postgres",
-            "host": "${{ secrets.POSTGRES_HOST }}",
-            "port": 5432,
-            "username": "${{ secrets.POSTGRES_USER }}",
-            "password": "${{ secrets.POSTGRES_PASSWORD }}",
-            "database": "Marco",
-            "entities": ["dist/**/*.entity{.ts,.js}"],
-            "synchronize": true
-          }' > ormconfig.json
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-
-      # 13. Arrancar la aplicación NestJS
-      - name: Start the NestJS app
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
-          cd /var/www/html
-          npm run start:prod
           EOF
         env:
           HOST: ${{ secrets.REMOTE_HOST }}

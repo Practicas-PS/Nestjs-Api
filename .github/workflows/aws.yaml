@@ -55,7 +55,7 @@ jobs:
           HOST: ${{ secrets.REMOTE_HOST }}
 
       # 8. Crear el directorio en el servidor si no existe sisoy no soy
-      
+
       - name: Crear directorio en el servidor
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
@@ -70,7 +70,7 @@ jobs:
           HOST: ${{ secrets.REMOTE_HOST }}
           USER: ubuntu
 
-      # 10. Reiniciar servidor Apache para cargar los cambios
+      # 10. Reiniciar servidor Apache para cargar los cambios jaja
       - name: Reiniciar servidor Apache
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'

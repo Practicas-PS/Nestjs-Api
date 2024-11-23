@@ -25,10 +25,16 @@ jobs:
         run: |
           npm install
 
-      # 4. Ejecutar el comando start
+      # 4. Ejecutar el comando start con las variables de entorno
       - name: Run start command
         run: |
           npm run start:dev
+        env:
+          DB_HOST: ${{ secrets.REMOTE_HOST }}
+          DB_PORT: ${{ secrets.POSTGRES_PORT }}
+          DB_USERNAME: ${{ secrets.POSTGRES_USER }}
+          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DB_DATABASE: ${{ secrets.POSTGRES_DATABASE }}
 
       # 5. Configurar la conexión SSH
       - name: Configurar SSH

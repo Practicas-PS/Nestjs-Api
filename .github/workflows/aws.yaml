@@ -28,7 +28,7 @@ jobs:
       # 4. Ejecutar el comando start
       - name: Run start command
         run: |
-          npm run start
+          npm run start:dev
 
       # 5. Configurar la conexión SSH
       - name: Configurar SSH
@@ -43,38 +43,17 @@ jobs:
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 7. Instalar Apache2 si no está instalado
-      - name: Instalar Apache2
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
-          sudo apt update
-          sudo apt install apache2 -y
-          sudo systemctl enable apache2
-          EOF
-        env:
-          HOST: ${{ secrets.REMOTE_HOST }}
-
-      # 8. Crear el directorio en el servidor si no existe sisoy no soy
-
+      # 7. Crear el directorio en el servidor si no existe
       - name: Crear directorio en el servidor
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 9. Transferir archivos generados a Lightsail
+      # 8. Transferir archivos generados a Lightsail
       - name: Transferir archivos de build a Lightsail
         run: |
           rsync -avz --delete ./dist/ ubuntu@$HOST:/var/www/html/
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
           USER: ubuntu
-
-      # 10. Reiniciar servidor Apache para cargar los cambios jaja
-      - name: Reiniciar servidor Apache
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@$HOST << 'EOF'
-          sudo systemctl restart apache2
-          EOF
-        env:
-          HOST: ${{ secrets.REMOTE_HOST }}

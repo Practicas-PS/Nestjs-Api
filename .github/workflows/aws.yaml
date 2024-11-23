@@ -54,7 +54,8 @@ jobs:
         env:
           HOST: ${{ secrets.REMOTE_HOST }}
 
-      # 8. Crear el directorio en el servidor si no existe sisoy
+      # 8. Crear el directorio en el servidor si no existe sisoy no soy
+      
       - name: Crear directorio en el servidor
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@$HOST "sudo mkdir -p /var/www/html && sudo chown -R ubuntu:ubuntu /var/www/html"
